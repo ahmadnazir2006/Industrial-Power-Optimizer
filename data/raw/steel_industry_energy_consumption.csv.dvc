@@ -1,0 +1,5 @@
+outs:
+- md5: e73a61c93cbef4fa9d5409e11b92ff28
+  size: 2300844
+  hash: md5
+  path: steel_industry_energy_consumption.csv
