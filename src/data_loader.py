@@ -29,3 +29,4 @@ def get_raw_data():
 if __name__=="__main__":
     df=get_raw_data()
     print("Data loaded successfully")
+    

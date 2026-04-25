@@ -1,0 +1,5 @@
+outs:
+- md5: e7f6cab0aecbd43dbeeed3c489cef5ac
+  size: 3735331
+  hash: md5
+  path: steel_industry_final.csv
