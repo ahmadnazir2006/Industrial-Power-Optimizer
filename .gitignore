@@ -1,5 +1,25 @@
+# Virtual environment
+venv_tf/
 venv/
 .venv/
+env/
+ENV/
+
+# Python cache
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Jupyter Notebook checkpoints
 .ipynb_checkpoints/
+
+# Environment variables
+.env
+
+# Weights & Biases cache (optional but recommended)
+wandb/
+
+# OS files (optional)
+.DS_Store
+Thumbs.db
