@@ -1,6 +1,7 @@
 import sys ,os
 import numpy as np
 import pandas as pd
+import joblib
 import seaborn as sns
 import matplotlib.pyplot as plt
 from pathlib import Path
@@ -144,3 +145,9 @@ print(f"Train Scaled Min: {train_scaled.min()}")
 print(f"Train Scaled Max: {train_scaled.max()}")
 print(f"Test Scaled Min: {test_scaled.min()}")
 print(f"Test Scaled Max: {test_scaled.max()}")
+
+
+np.save("data/raw/processed/train_scaled.npy", train_scaled)
+np.save("data/raw/processed/test_scaled.npy", test_scaled)  
+
+joblib.dump(normalizer, "models/scaler.pkl")
