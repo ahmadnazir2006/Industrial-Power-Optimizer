@@ -47,7 +47,11 @@ This project follows an industry-standard lifecycle to ensure transparency and r
 
 ---
 
-## 💻 Installation & Usage
+👤 Author
+Ahmad Nazir
+BS Computer Science | FAST-NUCES, Lahore
+LinkedIn | GitHub
+
 
 ## 💻 Installation & Usage
 
@@ -60,7 +64,3 @@ cd Industrial-Power-Optimizer
 pip install -r requirements.txt
 ##3. Run the Dashboard
 streamlit run app/main.py
-👤 Author
-Ahmad Nazir
-BS Computer Science | FAST-NUCES, Lahore
-LinkedIn | GitHub
