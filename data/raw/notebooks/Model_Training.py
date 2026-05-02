@@ -21,7 +21,7 @@ def create_sequences(data,window_size):
     for i in range(window_size,len(data) ):
         
         X.append(data[i-window_size:i,:])  #all features except the target variable
-        y.append(data[i,0])   #target variable is the last column (Usage_kWh)
+        y.append(data[i,0])   #target variable is the first column (Usage_kWh)
         
        
     return np.array(X),np.array(y)
