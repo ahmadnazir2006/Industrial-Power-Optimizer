@@ -8,6 +8,25 @@ scaler=joblib.load('models/scaler.pkl')
 import streamlit as st
 import plotly.graph_objects as go
 
+
+import os
+
+
+BASE_DIR = os.path.dirname(__file__)
+
+MODEL_PATH = os.path.join(BASE_DIR, "..", "models", "industrial_lstm_model.keras")
+
+model = load_model(MODEL_PATH)
+if not os.path.exists(MODEL_PATH):
+    st.error("🚨 **Model File Missing in the Cloud!**")
+    st.write(f"The app looked for the model here: `{MODEL_PATH}`")
+    st.write("Current working directory:", os.getcwd())
+    st.write("Files in root:", os.listdir(os.path.join(BASE_DIR, "..")))
+    st.stop() # This halts the app cleanly instead of crashing
+
+
+
+
 Global_Threshold=100
 
 plot_data=pd.read_csv('data/raw/processed/prediction_results.csv',parse_dates=['date'],index_col='date')
@@ -40,6 +59,7 @@ if start_date in final_month_data.index and end_date in final_month_data.index:
         st.error("⚠️ CRITICAL LOAD ALERT")
         col1,col2=st.columns(2)
         excess_kwh=peaks['Predicted Usage (KWh)']-Global_Threshold
+    
         with col1:
             st.metric("Peak Load Detected(total):",f"{len(peaks)} times",delta="High Demand")
             st.metric("Average Excess Load:",f"{excess_kwh.mean():.2f} KWh")
@@ -53,6 +73,9 @@ if start_date in final_month_data.index and end_date in final_month_data.index:
             st.write("The following 15-minute intervals exceeded the safety threshold:")
             st.dataframe(peaks[['Predicted Usage (KWh)']])
         st.info(f"💡 **Recommendation:** Consider shifting heavy machinery loads from the identified peaks to off-peak hours (11 PM - 6 AM) to reduce demand charges.")
+    else:
+        st.success("All systems stable ⚡ No abnormal energy usage detected!")
+        st.snow()
     fig=go.Figure()
     fig.add_trace(go.Scatter(x=daily_data.index,y=daily_data['Actual Usage (KWh)'],mode='lines'
                              ,name="Actual Usage (KWh)",line=dict(dash='dash',color='red')))
