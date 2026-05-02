@@ -49,17 +49,16 @@ This project follows an industry-standard lifecycle to ensure transparency and r
 
 ## 💻 Installation & Usage
 
+## 💻 Installation & Usage
+
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/ahmadnazir2006/Industrial-Power-Optimizer.git
 cd Industrial-Power-Optimizer
-2. Setup Environment
-code
-Bash
+##2. Setup Environment
 pip install -r requirements.txt
-3. Run the Dashboard
-code
-Bash
+##3. Run the Dashboard
 streamlit run app/main.py
 👤 Author
 Ahmad Nazir
