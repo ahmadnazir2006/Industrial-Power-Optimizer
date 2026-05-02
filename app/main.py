@@ -3,33 +3,37 @@ import joblib
 from tensorflow.keras.models import load_model
 import pandas as pd
 import matplotlib.pyplot as plt 
-model=load_model('models/industrial_lstm_model.keras')
-scaler=joblib.load('models/scaler.pkl')
+
 import streamlit as st
 import plotly.graph_objects as go
 
 
 import os
 
+# 1. Get the Absolute Path to the project root
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-BASE_DIR = os.path.dirname(__file__)
+# 2. Define full paths to your artifacts
+MODEL_PATH = os.path.join(BASE_DIR, "models", "industrial_lstm_model.keras")
+SCALER_PATH = os.path.join(BASE_DIR, "models", "scaler.pkl")
+DATA_PATH = os.path.join(BASE_DIR, "data", "results", "final_predictions.csv")
 
-MODEL_PATH = os.path.join(BASE_DIR, "..", "models", "industrial_lstm_model.keras")
-
-model = load_model(MODEL_PATH)
-if not os.path.exists(MODEL_PATH):
-    st.error("🚨 **Model File Missing in the Cloud!**")
-    st.write(f"The app looked for the model here: `{MODEL_PATH}`")
-    st.write("Current working directory:", os.getcwd())
-    st.write("Files in root:", os.listdir(os.path.join(BASE_DIR, "..")))
-    st.stop() # This halts the app cleanly instead of crashing
-
-
+# 3. Load the model with a 'Try-Except' block (Professional Debugging)
+try:
+    model = load_model(MODEL_PATH)
+    scaler = joblib.load(SCALER_PATH)
+    df = pd.read_csv(DATA_PATH, parse_dates=['date'], index_col='date')
+except Exception as e:
+    st.error(f"Error loading project files: {e}")
+    st.write(f"Looking in: {MODEL_PATH}")
+    st.stop()
 
 
+model=load_model(MODEL_PATH)
+scaler=joblib.load(SCALER_PATH)
 Global_Threshold=100
 
-plot_data=pd.read_csv('data/raw/processed/prediction_results.csv',parse_dates=['date'],index_col='date')
+plot_data=pd.read_csv(DATA_PATH,parse_dates=['date'],index_col='date')
 plot_data.index = pd.to_datetime(plot_data.index)
 st.title("Energy Consumer Explorer")
 
