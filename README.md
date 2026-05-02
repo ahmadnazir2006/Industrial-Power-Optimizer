@@ -48,9 +48,13 @@ This project follows an industry-standard lifecycle to ensure transparency and r
 ---
 
 👤 Author
-Ahmad Nazir
-BS Computer Science | FAST-NUCES, Lahore
-LinkedIn | GitHub
+
+**Ahmad Nazir**  
+BS Computer Science | FAST-NUCES, Lahore  
+
+🔗 LinkedIn | GitHub  
+
+---
 
 
 ## 💻 Installation & Usage
