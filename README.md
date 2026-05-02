@@ -53,7 +53,8 @@ This project follows an industry-standard lifecycle to ensure transparency and r
 BS Computer Science | FAST-NUCES, Lahore  
 
 🔗 LinkedIn | GitHub  
-
+🔗 GitHub: https://github.com/ahmadnazir2006  
+💼 LinkedIn: https://www.linkedin.com/in/ahmad-nazir-75752225b/
 ---
 
 
