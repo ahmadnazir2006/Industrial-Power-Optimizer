@@ -3,7 +3,7 @@ from tensorflow.keras.models import load_model
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-model=load_model('models/industrial_lstm_model.keras')
+model=load_model('models/industrial_lstm_model.keras.h5')
 scaler=joblib.load('models/scaler.pkl')
 
 test_scaled=np.load("data/raw/processed/test_scaled.npy")

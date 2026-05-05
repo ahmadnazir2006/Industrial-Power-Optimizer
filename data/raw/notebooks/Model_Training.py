@@ -34,8 +34,8 @@ print("y_train shape:", y_train.shape)
 os.makedirs("models",exist_ok=True)
 print("Starting model training...")
 model=tf.keras.Sequential([
-    tf.keras.layers.Input(shape=(X_train.shape[1], X_train.shape[2])),
-    tf.keras.layers.LSTM(64,return_sequences=True),
+    
+    tf.keras.layers.LSTM(64,return_sequences=True, input_shape=(96, 7)),
     tf.keras.layers.Dropout(0.2),
     tf.keras.layers.LSTM(32,return_sequences=False),
     tf.keras.layers.Dropout(0.2),
@@ -68,7 +68,7 @@ if not os.path.exists('models'):
     os.makedirs('models')
 
 # 2. Save the LSTM Model
-model.save('models/industrial_lstm_model.keras')
+model.save('models/industrial_lstm_model.keras.h5')
 
 # 3. Save the Scaler (This is vital for Phase 5: Evaluation)
 joblib.dump(scaler, 'models/scaler.pkl')

@@ -14,7 +14,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # 2. Define full paths to your artifacts
-MODEL_PATH = os.path.join(BASE_DIR, "models", "industrial_lstm_model.keras")
+MODEL_PATH = os.path.join(BASE_DIR, "models", "industrial_lstm_model.keras.h5")
 SCALER_PATH = os.path.join(BASE_DIR, "models", "scaler.pkl")
 DATA_PATH = os.path.join(BASE_DIR, "data", "results", "final_predictions.csv")
 
