@@ -282,7 +282,7 @@ with tab2:
     start_stream = st.button("🚀 Launch Live Stream")
     st.subheader("Live Energy Consumption Monitoring")
 
-    FULL_DATA_PATH = os.path.join(BASE_DIR, "data", "raw", "processed", "steel_industry_final.csv")
+    FULL_DATA_PATH = os.path.join(BASE_DIR, "data", "raw", "processed", "processed_deployment.csv")
     
     try:
         df_sim = pd.read_csv(FULL_DATA_PATH, parse_dates=['date'], index_col='date')
