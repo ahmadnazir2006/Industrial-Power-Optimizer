@@ -4,7 +4,7 @@
 [![ClickUp](https://img.shields.io/badge/ClickUp-Project_Management-crimson?style=for-the-badge&logo=clickup)](https://sharing.clickup.com/90181392008/t/86exfd4t3/simulatereal-timeenergysensorstreamingin-streamlit)
 [![WandB](https://img.shields.io/badge/Weights_%26_Biases-Live_Training-orange?style=for-the-badge&logo=weightsandbiases)](https://wandb.ai/ahmad823-fast-nuces/Industrial%20Power%20Optimizer/runs/i6hkfu1l?nw=nwuserahmad823)
 ![DVC](https://img.shields.io/badge/DVC-Data_Versioning-grey?style=for-the-badge&logo=dataversioncontrol)
-![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-blue?style=for-the-badge&logo=streamlit)
+![APP]([https://img.shields.io/badge/Streamlit-Dashboard-blue?style=for-the-badge&logo=streamlit](https://industrial-power-optimizer-238.streamlit.app/))
 
 ---
 
