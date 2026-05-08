@@ -18,10 +18,10 @@ window_size=96
 def create_sequences(data,window_size):
     X,y=[],[]
 
-    for i in range(window_size,len(data) ):
+    for i in range(window_size,len(data)-window_size ):
         
         X.append(data[i-window_size:i,:])  #all features except the target variable
-        y.append(data[i,0])   #target variable is the first column (Usage_kWh)
+        y.append(data[i:i+window_size,0])   #target variable is the first column (Usage_kWh)
         
        
     return np.array(X),np.array(y)
@@ -33,42 +33,78 @@ print("y_train shape:", y_train.shape)
 
 os.makedirs("models",exist_ok=True)
 print("Starting model training...")
-model=tf.keras.Sequential([
+
+model_lstm=tf.keras.Sequential([
     
     tf.keras.layers.LSTM(64,return_sequences=True, input_shape=(96, 7)),
     tf.keras.layers.Dropout(0.2),
     tf.keras.layers.LSTM(32,return_sequences=False),
     tf.keras.layers.Dropout(0.2),
     tf.keras.layers.Dense(16,activation='relu'),
-    tf.keras.layers.Dense(1)
+    tf.keras.layers.Dense(96)
 ])
 
-wandb.init(project="Industrial Power Optimizer",
-           name="LSTM_model",
-           config={
-               'lstm_units_1': 64,
-               'lstm_units_2': 32,
-               'dropout': 0.2,
-               'batch_size': 32,
-               'epochs': 50,
-               'window_size':96,
-               'optimizer': 'adam',
-                         }
-                         ,reinit=True)
-early_stop=EarlyStopping(monitor='val_loss',patience=5,restore_best_weights=True)
-wandb_callback = WandbMetricsLogger()
+model_cnn_lstm=tf.keras.Sequential([
+    tf.keras.layers.Input(shape=(96,7)),
+    tf.keras.layers.Conv1D(filters=64,kernel_size=3,activation='relu',input_shape=(96,7)),
+    tf.keras.layers.MaxPooling1D(pool_size=2),
+    tf.keras.layers.Dropout(0.2),
+    tf.keras.layers.LSTM(64,return_sequences=False,input_shape=(96, 7)),
+    tf.keras.layers.Dropout(0.2),
+    tf.keras.layers.Dense(32,activation='relu'),
+    tf.keras.layers.Dense(96)
+])
 
+model_gru=tf.keras.Sequential([
+    tf.keras.layers.Input(shape=(96,7)),
+    tf.keras.layers.GRU(64,return_sequences=True, input_shape=(96, 7)),
+    tf.keras.layers.Dropout(0.2),
+    tf.keras.layers.GRU(32,return_sequences=False),
+    tf.keras.layers.Dropout(0.2),
+    tf.keras.layers.Dense(16,activation='relu'),
+    tf.keras.layers.Dense(96)
+])
 
+Model_dict={'LSTM':model_lstm,'CNN_LSTM':model_cnn_lstm,'GRU':model_gru}
 
-model.compile(optimizer='adam',loss='mse',metrics=['mae','mape'])
-history=model.fit(X_train,y_train,validation_split=0.1,epochs=wandb.config.epochs,batch_size=wandb.config.batch_size,callbacks=[early_stop,wandb_callback],verbose=1)
-model.summary()
-# 1. Create the folder (if it's not already there)
-if not os.path.exists('models'):
-    os.makedirs('models')
+for Model_name,model in Model_dict.items():
+            tf.keras.backend.clear_session()
+            wandb.init(project="Industrial Power Optimizer",
+                    name=Model_name,
+                    config={
+                        'lstm_units_1': 64,
+                        'lstm_units_2': 32,
+                        'gru_units_1': 64,
+                        'gru_units_2': 32,
+                        'cnn_filters': 64,
+                        'cnn_kernel_size': 3,
+                        'dropout': 0.2,
+                        'batch_size': 32,
+                        'epochs': 50,
+                        'window_size':96,
+                        'optimizer': 'adam',
+                                    }
+                                    ,reinit=True)
+            early_stop=EarlyStopping(monitor='val_loss',patience=5,restore_best_weights=True)
+            wandb_callback = WandbMetricsLogger()
 
-# 2. Save the LSTM Model
-model.save('models/industrial_lstm_model.keras.h5')
+            optimizer=tf.keras.optimizers.Adam(learning_rate=0.001)
+            loss_function=tf.keras.losses.Huber(delta=1.0)
 
-# 3. Save the Scaler (This is vital for Phase 5: Evaluation)
-joblib.dump(scaler, 'models/scaler.pkl')
+            reduce_lr=tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss',
+                                              factor=0.5,
+                                              patience=3,
+                                              min_lr=0.00001)
+
+            model.compile(optimizer=optimizer,loss=loss_function,metrics=['mae','mape'])
+            history=model.fit(X_train,y_train,validation_split=0.1,epochs=wandb.config.epochs,batch_size=wandb.config.batch_size,callbacks=[early_stop,wandb_callback,reduce_lr],verbose=1)
+            model.summary()
+            # 1. Create the folder (if it's not already there)
+            if not os.path.exists('models'):
+                os.makedirs('models')
+
+            # 2. Save the LSTM Model
+            model.save(f'models/{Model_name.lower()}.h5')
+
+            # 3. Save the Scaler (This is vital for Phase 5: Evaluation)
+            joblib.dump(scaler, f'models/{Model_name.lower()}_scaler.pkl')
