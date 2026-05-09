@@ -6,6 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import streamlit as st
+import streamlit.components.v1 as components
 import plotly.graph_objects as go
 import time
 
@@ -22,6 +23,114 @@ st.set_page_config(
 )
 
 # ============================================================
+#  3D ANIMATED BACKGROUND — Three.js wave-grid particle field
+#  Reacts to scroll and mouse parallax.
+# ============================================================
+components.html("""
+<!doctype html>
+<!-- ipo-3d-bg-marker -->
+<html><head><style>
+html,body{margin:0;padding:0;background:transparent;overflow:hidden;}
+canvas{display:block;}
+</style></head>
+<body>
+<canvas id="cv"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+(function(){
+  const cv = document.getElementById('cv');
+  const W = () => window.innerWidth;
+  const H = () => window.innerHeight;
+
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, W()/H(), 0.1, 1000);
+  camera.position.set(0, 22, 50);
+  camera.lookAt(0, 0, 0);
+
+  const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: true, powerPreference: 'low-power' });
+  renderer.setSize(W(), H());
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  renderer.setClearColor(0x000000, 0);
+
+  const SIZE = 240, SEG = 90;
+  const geom = new THREE.PlaneGeometry(SIZE, SIZE, SEG, SEG);
+  geom.rotateX(-Math.PI / 2);
+
+  const mat = new THREE.PointsMaterial({
+    color: 0xffffff, size: 0.32,
+    transparent: true, opacity: 0.6,
+    sizeAttenuation: true, depthWrite: false
+  });
+  const points = new THREE.Points(geom, mat);
+  scene.add(points);
+
+  const positions = geom.attributes.position;
+  const N = positions.count;
+  const bX = new Float32Array(N), bZ = new Float32Array(N);
+  for (let i = 0; i < N; i++) { bX[i] = positions.getX(i); bZ[i] = positions.getZ(i); }
+
+  let scrollY = 0, targetScroll = 0;
+  let mx = 0, my = 0, tmx = 0, tmy = 0;
+
+  // Hook into parent doc for scroll/mouse (works when sandbox allows same-origin)
+  try {
+    const pwin = window.parent;
+    const pdoc = pwin.document;
+    pwin.addEventListener('scroll', () => {
+      targetScroll = pwin.scrollY || pdoc.documentElement.scrollTop || 0;
+    }, { passive: true });
+    pdoc.addEventListener('mousemove', (e) => {
+      tmx = (e.clientX / W()) * 2 - 1;
+      tmy = -(e.clientY / H()) * 2 + 1;
+    }, { passive: true });
+    const appContainer = pdoc.querySelector('[data-testid="stAppViewContainer"]');
+    if (appContainer) {
+      appContainer.addEventListener('scroll', () => {
+        targetScroll = appContainer.scrollTop || 0;
+      }, { passive: true });
+    }
+  } catch (e) { /* cross-origin; animation continues without interaction */ }
+
+  function animate(t) {
+    scrollY += (targetScroll - scrollY) * 0.06;
+    mx += (tmx - mx) * 0.04;
+    my += (tmy - my) * 0.04;
+
+    const time = t * 0.0006;
+    const sf = scrollY * 0.005;
+
+    for (let i = 0; i < N; i++) {
+      const x = bX[i], z = bZ[i];
+      const d = Math.sqrt(x * x + z * z);
+      const wave = Math.sin(d * 0.16 - time * 1.3 + sf) * 2.6
+                 + Math.sin(x * 0.08 + time * 0.7) * 1.5
+                 + Math.cos(z * 0.1  + time * 0.5) * 1.5;
+      positions.setY(i, wave);
+    }
+    positions.needsUpdate = true;
+
+    camera.position.x += (mx * 7 - camera.position.x) * 0.025;
+    camera.position.y = 22 + my * 5;
+    camera.lookAt(0, 0, 0);
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  function resize() {
+    camera.aspect = W() / H();
+    camera.updateProjectionMatrix();
+    renderer.setSize(W(), H());
+  }
+  window.addEventListener('resize', resize);
+  resize();
+})();
+</script>
+</body></html>
+""", height=1, scrolling=False)
+
+# ============================================================
 #  STYLES — Apple-inspired: SF Pro, restrained palette,
 #  subtle borders, no glows, no pulse animations.
 # ============================================================
@@ -35,8 +144,53 @@ st.markdown("""
     }
 
     .stApp {
-        background: #000000;
+        background: transparent !important;
         color: #f5f5f7;
+    }
+    body { background: #000 !important; }
+    [data-testid="stAppViewContainer"] { background: transparent !important; }
+    [data-testid="stHeader"] { background: transparent !important; }
+
+    /* 3D background iframe — full-screen fixed canvas */
+    iframe[srcdoc*="ipo-3d-bg-marker"] {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        z-index: 0 !important;
+        pointer-events: none !important;
+        border: none !important;
+        background: transparent !important;
+    }
+    /* Collapse the wrapper Streamlit puts around the components iframe */
+    div[data-testid="stIFrame"]:has(iframe[srcdoc*="ipo-3d-bg-marker"]),
+    div:has(> iframe[srcdoc*="ipo-3d-bg-marker"]) {
+        height: 0 !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+    /* Vignette to fade the canvas edges into black */
+    .stApp::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background:
+            radial-gradient(ellipse at 50% 100%, transparent 0%, rgba(0,0,0,0.55) 80%),
+            linear-gradient(180deg, rgba(0,0,0,0.45) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.65) 100%);
+    }
+    /* Lift content above the canvas + vignette */
+    .main, .block-container {
+        position: relative;
+        z-index: 2;
+    }
+    [data-testid="stSidebar"] {
+        position: relative;
+        z-index: 3;
     }
 
     #MainMenu, footer, header { visibility: hidden; }
