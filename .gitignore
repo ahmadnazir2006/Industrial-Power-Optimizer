@@ -23,3 +23,7 @@ wandb/
 # OS files (optional)
 .DS_Store
 Thumbs.db
+
+# Claude Code workspace
+.claude/
+CLAUDE.md
